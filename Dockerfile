@@ -1,5 +1,3 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
@@ -12,7 +10,6 @@ WORKDIR /src
 COPY ["MicroService.csproj", "."]
 RUN dotnet restore "./MicroService.csproj"
 COPY . .
-WORKDIR "/src/MicroService"
 RUN dotnet build "./MicroService.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
