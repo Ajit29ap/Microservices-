@@ -1,26 +1,20 @@
-name: Build and Push to ACR
-
-on:
-  push:
-    branches:
-      - master
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Docker Login to ACR
+      - name: Docker logout from ACR
         run: |
           ACR_NAME_LOWER=$(echo "${{ secrets.ACR_NAME }}" | tr '[:upper:]' '[:lower:]')
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login "$ACR_NAME_LOWER.azurecr.io" \
-            --username "${{ secrets.ACR_USERNAME }}" \
-            --password-stdin
+          docker logout $ACR_NAME_LOWER.azurecr.io || true
 
-      - name: Build and Push Docker image
+      - name: Docker login to ACR
+        run: |
+          ACR_NAME_LOWER=$(echo "${{ secrets.ACR_NAME }}" | tr '[:upper:]' '[:lower:]')
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login $ACR_NAME_LOWER.azurecr.io --username ${{ secrets.ACR_USERNAME }} --password-stdin
+
+      - name: Build and push Docker image
         run: |
           ACR_NAME_LOWER=$(echo "${{ secrets.ACR_NAME }}" | tr '[:upper:]' '[:lower:]')
           IMAGE_TAG=$ACR_NAME_LOWER.azurecr.io/${{ secrets.IMAGE_NAME }}:latest
