@@ -9,8 +9,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["MicroService/MicroService.csproj", "MicroService/"]
-RUN dotnet restore "./MicroService/MicroService.csproj"
+COPY ["MicroService.csproj", "."]
+RUN dotnet restore "./MicroService.csproj"
 COPY . .
 WORKDIR "/src/MicroService"
 RUN dotnet build "./MicroService.csproj" -c $BUILD_CONFIGURATION -o /app/build
