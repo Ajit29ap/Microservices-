@@ -1,0 +1,31 @@
+name: Build and Push to ACR
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure Container Registry login
+        run: |
+          ACR_NAME_LOWER=$(echo "${{ secrets.ACR_NAME }}" | tr '[:upper:]' '[:lower:]')
+          az acr login --name $ACR_NAME_LOWER
+
+      - name: Build and Push Docker image
+        run: |
+          ACR_NAME_LOWER=$(echo "${{ secrets.ACR_NAME }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG=$ACR_NAME_LOWER.azurecr.io/${{ secrets.IMAGE_NAME }}:latest
+          docker build -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
