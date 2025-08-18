@@ -12,14 +12,18 @@ pool:
 steps:
 - checkout: self
 
-- task: AzureCLI@2
+# Login to ACR
+- task: Docker@2
   inputs:
-    azureSubscription: 'MicroService_Connection'
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      az acr login --name $(ACR_NAME)
-      IMAGE_TAG="$(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(Build.BuildId)"
-      echo "Building and pushing $IMAGE_TAG"
-      docker build -t $IMAGE_TAG .
-      docker push $IMAGE_TAG
+    command: login
+    containerRegistry: MicroService_Connection
+
+# Build and push the Docker image to ACR
+- task: Docker@2
+  inputs:
+    command: buildAndPush
+    containerRegistry: MicroService_Connection
+    repository: $(IMAGE_NAME)
+    dockerfile: '**/Dockerfile'
+    tags: |
+      $(Build.BuildId)
